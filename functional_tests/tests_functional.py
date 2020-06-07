@@ -1,10 +1,12 @@
+# Django test files MUST begin with tests and the classes themselves must also start with Test
+
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
-import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -20,7 +22,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_list_and_retrieve_it_later(self):
         # Edith has heard about a cool new online to-do app. She goes
         # to check out its homepage
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mention to-do lists
         self.assertIn('To-Do', self.browser.title)
@@ -53,7 +55,3 @@ class NewVisitorTest(unittest.TestCase):
         # you have to remember the current URL
         self.fail('Finish the test!')
         # A brand new visit to that URL confirms that the tasks are there
-
-
-if __name__ == '__main__':
-    unittest.main()
