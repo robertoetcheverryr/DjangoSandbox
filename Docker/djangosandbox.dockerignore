@@ -1,0 +1,9 @@
+# Start by ignoring everything
+*
+
+# Then allow only the required directories and files
+!DjangoSandbox
+# In real production we should provide the .env file separately? instead of hardcoding?
+!lists*
+# ignore lists/static dir
+lists/static

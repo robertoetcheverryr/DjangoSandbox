@@ -1,0 +1,1 @@
+COPY /y nginx-ssl-load-balancer.dockerignore .dockerignore

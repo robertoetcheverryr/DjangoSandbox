@@ -1,0 +1,1 @@
+COPY /y nginx-static.dockerignore .dockerignore

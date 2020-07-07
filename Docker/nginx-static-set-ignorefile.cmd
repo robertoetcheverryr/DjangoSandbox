@@ -1,0 +1,1 @@
+COPY /y djangosandbox.dockerignore .dockerignore
