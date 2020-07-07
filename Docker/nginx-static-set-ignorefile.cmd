@@ -1,1 +1,1 @@
-COPY /y djangosandbox.dockerignore .dockerignore
+COPY /y ngnx-static.dockerignore .dockerignore

@@ -1,0 +1,23 @@
+# Skeleton docker compose file for the dockerized Django Sandbox
+version: '3.7'
+services:
+# TODO create an nginx image with the static content
+  static:
+    image: etcheverryroberto/nginx-static:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - ./app:/usr/share/nginx/html
+# This is the only container ready
+  django:
+    image: etcheverryroberto/djangosandbox:latest
+    ports:
+      - "8000:8000"
+# TODO configure certbot to obtain base and wildcard certs for dynu using DNS-01 challenge
+  certbot:
+    image: certbot/certbot
+# TODO with the above cert generated, configure nginx to serve static and dynamic content
+  ssl-load-balancer:
+    image: etcheverryroberto/nginx-ssl-load-balancer:latest
+    ports:
+      - "1043:443"
