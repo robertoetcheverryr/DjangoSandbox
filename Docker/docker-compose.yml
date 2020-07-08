@@ -1,33 +1,46 @@
-# Skeleton docker compose file for the dockerized Django Sandbox
 version: '3.7'
+# Remember that the network MUST exist in the docker host/swarm
+networks:
+  backbone:
+    external:
+      name: backbone
 services:
 # TODO I am thinking of making all nginx instances share /var/log and use a name+log.log format
-# TODO create an nginx image with the static content
-  static:
+# TODO move from custom nginx image to the base image + changing the files during startup
+  nginx-static:
     image: etcheverryroberto/nginx-static:latest
-    ports:
-      - "80:80"
-    volumes:
+    expose:
+      - "80"
+    networks:
+      - backbone
+    #volumes:
       # TODO check how to send these volumes and make them available to all containers and nodes
-      - ./static:/usr/share/nginx/static
-      - ./var/log/nginx/:/var/log/nginx/
-      - ./etc/nginx/:/etc/nginx/
+      #- ./static:/usr/share/nginx/static
+      #- ./var/log/nginx/:/var/log/nginx/
+      #- ./nginx-static/etc/nginx/:/etc/nginx/
 # This is the only container ready
-  django:
+  djangosandbox:
     image: etcheverryroberto/djangosandbox:latest
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
+    networks:
+      - backbone
 # TODO configure certbot to obtain base and wildcard certs for dynu using DNS-01 challenge
-  certbot:
-    image: certbot/certbot
+  #certbot:
+  #  image: certbot/certbot
     # --must-staple --rsa-key-size 4096
 # TODO with the above cert generated, configure nginx to serve static and dynamic content
-  ssl-load-balancer:
-    image: nginx
+  nginx-ssl-load-balancer:
+    depends_on:
+      - nginx-static
+      - djangosandbox
+    image: etcheverryroberto/nginx-ssl-load-balancer
     ports:
       - "80:80"
       - "443:443"
-    volumes:
+    networks:
+      - backbone
+    #volumes:
       # TODO check how to send these volumes and make them available to all containers and nodes
-      - ./var/log/nginx/:/var/log/nginx/
-      - ./etc/nginx/:/etc/nginx/
+      #- ./var/log/nginx/:/var/log/nginx/
+      #- ./nginx-ssl-load-balancer/etc/nginx/:/etc/nginx/

@@ -7,3 +7,5 @@
 !lists*
 # ignore lists/static dir
 lists/static
+# When we move from using sqlite3 to a real DB we won't need to do migrations, I think?
+!manage.py

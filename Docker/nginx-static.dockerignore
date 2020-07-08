@@ -2,4 +2,5 @@
 *
 
 # Then allow only the required directories and files
-static
+!nginx-static*
+!static*

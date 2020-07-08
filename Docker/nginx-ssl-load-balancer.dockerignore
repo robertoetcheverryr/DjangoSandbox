@@ -2,4 +2,4 @@
 *
 
 # Then allow only the required directories and files
-# Here will go the configuration files needed.
+!nginx-ssl-load-balancer*

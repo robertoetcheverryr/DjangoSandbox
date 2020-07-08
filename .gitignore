@@ -5,4 +5,5 @@
 /db.sqlite3
 /static/
 /DjangoSandbox/.env
-/Docker/.dockerignore
+/.dockerignore
+/nginx-ssl-load-balancer/etc/nginx/ssl/

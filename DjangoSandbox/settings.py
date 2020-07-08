@@ -34,7 +34,10 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['test.infrastructure-altrium.mywire.org', 'localhost']
+env = environ.Env(
+    ALLOWED_HOSTS=(list, [])
+)
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 

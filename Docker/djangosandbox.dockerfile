@@ -10,4 +10,5 @@ CMD curl -f http://localhost:8000/ || exit 1
 # Finally, set the working directory, the command to execute on image start and copy the app files
 WORKDIR /app
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "DjangoSandbox.wsgi:application"]
-COPY .. /app
+COPY . /app
+RUN python manage.py migrate --noinput
