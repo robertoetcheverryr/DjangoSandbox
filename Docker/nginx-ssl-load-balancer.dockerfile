@@ -1,5 +1,6 @@
 FROM nginx
 RUN rm /etc/nginx/conf.d/default.conf
+RUN rm /docker-entrypoint.d/*.*
 CMD ["nginx"]
 COPY ./nginx-ssl-load-balancer /
 
