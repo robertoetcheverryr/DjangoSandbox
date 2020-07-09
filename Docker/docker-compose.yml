@@ -34,7 +34,7 @@ services:
     depends_on:
       - nginx-static
       - djangosandbox
-    image: etcheverryroberto/nginx-ssl-load-balancer
+    image: etcheverryroberto/nginx-ssl-load-balancer:latest
     ports:
       - "80:80"
       - "443:443"
