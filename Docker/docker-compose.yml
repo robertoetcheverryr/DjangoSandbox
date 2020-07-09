@@ -18,6 +18,11 @@ services:
       #- ./static:/usr/share/nginx/static
       #- ./var/log/nginx/:/var/log/nginx/
       #- ./nginx-static/etc/nginx/:/etc/nginx/
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://logs4.papertrailapp.com:36048"
+        tag: "{{.Name}}/{{.ID}}"
 # This is the only container ready
   djangosandbox:
     image: etcheverryroberto/djangosandbox:latest
@@ -25,6 +30,11 @@ services:
       - "8000"
     networks:
       - backbone
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://logs4.papertrailapp.com:36048"
+        tag: "{{.Name}}/{{.ID}}"
 # TODO configure certbot to obtain base and wildcard certs for dynu using DNS-01 challenge
   #certbot:
   #  image: certbot/certbot
@@ -40,6 +50,11 @@ services:
       - "443:443"
     networks:
       - backbone
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://logs4.papertrailapp.com:36048"
+        tag: "{{.Name}}/{{.ID}}"
     #volumes:
       # TODO check how to send these volumes and make them available to all containers and nodes
       #- ./var/log/nginx/:/var/log/nginx/
