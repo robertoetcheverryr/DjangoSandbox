@@ -9,6 +9,8 @@ services:
 # TODO move from custom nginx image to the base image + changing the files during startup
   nginx-static:
     image: etcheverryroberto/nginx-static:latest
+    # TODO mount a r/w directory for temps and set the container to read only
+    # read_only: true
     expose:
       - "80"
     networks:
@@ -45,9 +47,11 @@ services:
       - nginx-static
       - djangosandbox
     image: etcheverryroberto/nginx-ssl-load-balancer:latest
+    # TODO mount a r/w directory for temps and set the container to read only
+    # read_only: true
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:8080"
+      - "443:4443"
     networks:
       - backbone
     logging:
