@@ -5,21 +5,23 @@ networks:
     external:
       name: backbone
 services:
-# TODO I am thinking of making all nginx instances share /var/log and use a name+log.log format
-# TODO move from custom nginx image to the base image + changing the files during startup
+# TODO Add CPU, Memory, Restart and Privilege limits
   nginx-static:
-    image: etcheverryroberto/nginx-static:latest
-    # TODO mount a r/w directory for temps and set the container to read only
-    # read_only: true
+    image: nginx:latest
+    read_only: true
+    tmpfs:
+      - /var/cache
+      - /run
+      # Mount an empty docker-entrypoint.d to override the existing scripts in the nginx image
+      - /docker-entrypoint.d/
     expose:
       - "80"
     networks:
       - backbone
-    #volumes:
-      # TODO check how to send these volumes and make them available to all containers and nodes
-      #- ./static:/usr/share/nginx/static
-      #- ./var/log/nginx/:/var/log/nginx/
-      #- ./nginx-static/etc/nginx/:/etc/nginx/
+    volumes:
+      - nginx-static-data:/usr/share/nginx:ro
+      - nginx-logs:/var/log/nginx
+      - ./nginx-static/nginx.conf:/etc/nginx/nginx.conf:ro
     logging:
       driver: syslog
       options:
@@ -37,18 +39,22 @@ services:
       options:
         syslog-address: "udp://logs4.papertrailapp.com:36048"
         tag: "{{.Name}}/{{.ID}}"
-# TODO configure certbot to obtain base and wildcard certs for dynu using DNS-01 challenge
-  #certbot:
-  #  image: certbot/certbot
+# TODO configure an alpine linux + acme.sh to obtain and renew SSL certs
+  #acme.sh:
+  #  image: neilpang/acme.sh
     # --must-staple --rsa-key-size 4096
 # TODO with the above cert generated, configure nginx to serve static and dynamic content
   nginx-ssl-load-balancer:
     depends_on:
       - nginx-static
       - djangosandbox
-    image: etcheverryroberto/nginx-ssl-load-balancer:latest
-    # TODO mount a r/w directory for temps and set the container to read only
-    # read_only: true
+    image: nginx:latest
+    read_only: true
+    tmpfs:
+      - /var/cache
+      - /run
+      # Mount an empty docker-entrypoint.d to override the existing scripts in the nginx image
+      - /docker-entrypoint.d/
     ports:
       - "80:8080"
       - "443:4443"
@@ -59,7 +65,14 @@ services:
       options:
         syslog-address: "udp://logs4.papertrailapp.com:36048"
         tag: "{{.Name}}/{{.ID}}"
-    #volumes:
-      # TODO check how to send these volumes and make them available to all containers and nodes
-      #- ./var/log/nginx/:/var/log/nginx/
-      #- ./nginx-ssl-load-balancer/etc/nginx/:/etc/nginx/
+    volumes:
+      - nginx-logs:/var/log/nginx
+      - nginx-certs:/etc/nginx/ssl:ro
+      - ./nginx-ssl-load-balancer/nginx.conf:/etc/nginx/nginx.conf:ro
+volumes:
+  nginx-logs:
+    driver: local
+  nginx-certs:
+    driver: local
+  nginx-static-data:
+    driver: local

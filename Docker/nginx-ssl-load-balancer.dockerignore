@@ -1,5 +1,0 @@
-# Start by ignoring everything
-*
-
-# Then allow only the required directories and files
-!nginx-ssl-load-balancer*
