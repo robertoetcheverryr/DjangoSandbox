@@ -5,7 +5,7 @@ networks:
     external:
       name: backbone
 services:
-# TODO Add CPU, Memory, Restart and Privilege limits
+# TODO Add CPU, Memory, Restart and Privilege limits to all containers
   nginx-static:
     image: nginx:latest
     read_only: true
@@ -27,7 +27,7 @@ services:
       options:
         syslog-address: "udp://logs4.papertrailapp.com:36048"
         tag: "{{.Name}}/{{.ID}}"
-# This is the only container ready
+# TODO secure the django container
   djangosandbox:
     image: etcheverryroberto/djangosandbox:latest
     expose:
@@ -39,11 +39,31 @@ services:
       options:
         syslog-address: "udp://logs4.papertrailapp.com:36048"
         tag: "{{.Name}}/{{.ID}}"
-# TODO configure an alpine linux + acme.sh to obtain and renew SSL certs
-  #acme.sh:
-  #  image: neilpang/acme.sh
-    # --must-staple --rsa-key-size 4096
-# TODO with the above cert generated, configure nginx to serve static and dynamic content
+# acme.sh will work as a daemon
+# on first install of the app, obtain the certs:
+# docker exec acme.sh acme.sh --issue -d test.infrastructure-altrium.mywire.org \
+# --dns dns_dynu --ocsp-must-staple --keylength 4096
+# Then deploy to the shared volume:
+# docker exec acme.sh acme.sh --install-cert -d test.infrastructure-altrium.mywire.org \
+#--cert-file /etc/nginx/ssl/test.infrastructure-altrium.mywire.org.cer \
+#--key-file /etc/nginx/ssl/test.infrastructure-altrium.mywire.org.key \
+#--ca-file /etc/nginx/ssl/ca.cer \
+#--fullchain-file /etc/nginx/ssl/fullchain.cer \
+#--reloadcmd "touch /etc/nginx/ssl/renewed"
+# TODO somehow automate either in acme.sh or in the nginx container so the renewed file triggers a reload
+  acme.sh:
+    image: neilpang/acme.sh
+    container_name: acme.sh
+    command: daemon
+    volumes:
+      - nginx-certs:/etc/nginx/ssl
+    env_file:
+      - ./acme.sh.env
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://logs4.papertrailapp.com:36048"
+        tag: "{{.Name}}/{{.ID}}"
   nginx-ssl-load-balancer:
     depends_on:
       - nginx-static
@@ -67,7 +87,7 @@ services:
         tag: "{{.Name}}/{{.ID}}"
     volumes:
       - nginx-logs:/var/log/nginx
-      - nginx-certs:/etc/nginx/ssl:ro
+      - nginx-certs:/etc/nginx/ssl
       - ./nginx-ssl-load-balancer/nginx.conf:/etc/nginx/nginx.conf:ro
 volumes:
   nginx-logs:

@@ -6,4 +6,4 @@
 /static/
 /DjangoSandbox/.env
 /.dockerignore
-/nginx-ssl-load-balancer/etc/nginx/ssl/
+/Docker/acme.sh.env
